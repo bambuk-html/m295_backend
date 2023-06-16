@@ -72,6 +72,10 @@ app.get('/tasks', checkAuth, (request, response) => {
 
 app.post('/tasks', checkAuth, (request, response) => {
     const newTask = request.body;
+    if (!newTask.title || newTask.title.trim() === ''){
+        response.status(406).json({ error: 'Cant Post nameless Task'});
+    }
+
     const maxId = Math.max(...taskData.tasks.map(task => task.id));
     newTask.id = maxId + 1;
     taskData.tasks.push(newTask);
