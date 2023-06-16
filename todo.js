@@ -105,6 +105,17 @@ app.delete('/tasks/:id', checkAuth, (request, response) => {
     }
 });
 
+const errorHandler = (request, response, error, next) => {
+    console.error('An error occurred:', error);
+    response.status(500).json({error: 'Internal server error'});
+};
+app.use(errorHandler);
+
+const handleNotFound = (request, response, next) => {
+    response.status(404).json({error: 'Not Found'});
+    };
+app.use(handleNotFound);
+
 app.listen(port, () => {
     console.log(`Task App listening on port ${port}`);
 });
