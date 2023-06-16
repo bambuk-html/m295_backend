@@ -30,6 +30,14 @@ app.get('/tasks', (request, response) => {
     }
 });
 
+app.post('/tasks', (request, response) => {
+    const newTask = request.body;
+    const maxId = Math.max(...taskData.tasks.map(task => task.id));
+    newTask.id = maxId + 1;
+    taskData.tasks.push(newTask);
+    response.status(201).send(`New Task created: ${JSON.stringify(newTask)}`);
+});
+
 app.listen(port, () => {
     console.log(`Task App listening on port ${port}`);
 });
