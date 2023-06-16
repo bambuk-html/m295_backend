@@ -5,6 +5,8 @@ const port = 3000;
 const bodyParser = require('body-parser');
 const fs = require('fs');
 const taskData = JSON.parse(fs.readFileSync('taskdata.json', 'utf-8'));
+const user1 = { email: 'john@zli.ch', password: 'johnspassword'};
+const user2 = { email: 'marco@zli.ch', password: 'marcospassword'};
 
 app.use(bodyParser.json());
 app.use(express.urlencoded({extended: true}));
@@ -18,7 +20,8 @@ app.use(session({
 
 app.post('/login', (request, response) => {
     const { email, password} = request.body;
-    if ( password === 'm295') {
+    if (( email ?.toLowerCase() === user1.email && password === user1.password) ||
+        ( email ?.toLowerCase() === user2.email && password === user2.password)) {
         request.session.email = email;
         return response.status(200).json({ email: request.session.email });
     }
@@ -32,6 +35,16 @@ app.get('/verify', (request, response) => {
     } else {
         response.status(401).json({ error: 'Not logged in' });
     }
+});
+
+app.delete('/logout', (request, response) => {
+    request.session.destroy((error) => {
+        if (error) {
+            console.error('Error destroying session: ', error);
+            return response.status(500).json({ error: 'Internal server error' });
+        }
+        response.status(204).end();
+    });
 });
 
 app.get('/tasks', (request, response) => {
