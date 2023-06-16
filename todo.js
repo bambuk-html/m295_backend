@@ -16,6 +16,16 @@ app.use(session({
     cookie: {}
 }));
 
+app.post('/login', (request, response) => {
+    const { email, password} = request.body;
+    if ( password === 'm295') {
+        request.session.email = email;
+        return response.status(200).json({ email: request.session.email });
+    }
+
+    return response.status(401).json({ error: 'Invalid credentials'});
+});
+
 app.get('/tasks', (request, response) => {
     const task_id = request.query.id;
     if (task_id) {
@@ -50,7 +60,16 @@ app.put('/tasks/:id', (request, response) => {
     }
 });
 
-
+app.delete('/tasks/:id', (request, response) => {
+    const task_id = parseInt(request.params.id);
+    const taskIndex = taskData.tasks.findIndex((task) => task.id === task_id);
+    if (taskIndex !== -1) {
+        const deletedTask = taskData.tasks.splice(taskIndex, 1);
+        response.status(200).send(`Deleted Task: ${JSON.stringify(deletedTask)}`);
+    } else {
+        response.status(404).send('Task not found');
+    }
+});
 
 app.listen(port, () => {
     console.log(`Task App listening on port ${port}`);
