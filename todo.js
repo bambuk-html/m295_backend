@@ -38,6 +38,20 @@ app.post('/tasks', (request, response) => {
     response.status(201).send(`New Task created: ${JSON.stringify(newTask)}`);
 });
 
+app.put('/tasks/:id', (request, response) => {
+    const task_id = request.params.id;
+    const updatedTask = request.body;
+    const taskIndex = taskData.tasks.findIndex(task => String(task.id) === task_id);
+    if (taskIndex !== -1) {
+        taskData.tasks[taskIndex] = { ...taskData.tasks[taskIndex], ...updatedTask };
+        response.status(200).send(`Updated Task: ${JSON.stringify(taskData.tasks[taskIndex])}`);
+    } else {
+        response.status(404).send('Task not found');
+    }
+});
+
+
+
 app.listen(port, () => {
     console.log(`Task App listening on port ${port}`);
 });
