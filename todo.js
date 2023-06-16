@@ -10,7 +10,6 @@ const user2 = { email: 'marco@zli.ch', password: 'marcospassword' }
 const swaggerFile = require('./swagger_output.json')
 const swaggerUi = require('swagger-ui-express')
 
-
 app.use(bodyParser.json())
 app.use(express.urlencoded({ extended: true }))
 
