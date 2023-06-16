@@ -26,6 +26,14 @@ app.post('/login', (request, response) => {
     return response.status(401).json({ error: 'Invalid credentials'});
 });
 
+app.get('/verify', (request, response) => {
+    if (request.session.email) {
+        response.status(200).json({ email: request.session.email });
+    } else {
+        response.status(401).json({ error: 'Not logged in' });
+    }
+});
+
 app.get('/tasks', (request, response) => {
     const task_id = request.query.id;
     if (task_id) {
