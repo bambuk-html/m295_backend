@@ -18,6 +18,14 @@ app.use(session({
     cookie: {}
 }));
 
+const checkAuth = (request, response, next) => {
+    if (request.session.email) {
+        next();
+    } else {
+        response.status(403).json({ error: 'Not authenticated'});
+    }
+};
+
 app.post('/login', (request, response) => {
     const { email, password} = request.body;
     if (( email ?.toLowerCase() === user1.email && password === user1.password) ||
@@ -29,7 +37,7 @@ app.post('/login', (request, response) => {
     return response.status(401).json({ error: 'Invalid credentials'});
 });
 
-app.get('/verify', (request, response) => {
+app.get('/verify', checkAuth, (request, response) => {
     if (request.session.email) {
         response.status(200).json({ email: request.session.email });
     } else {
@@ -37,17 +45,18 @@ app.get('/verify', (request, response) => {
     }
 });
 
-app.delete('/logout', (request, response) => {
+app.delete('/logout', checkAuth, (request, response) => {
     request.session.destroy((error) => {
         if (error) {
             console.error('Error destroying session: ', error);
             return response.status(500).json({ error: 'Internal server error' });
         }
+        response.clearCookie('connect.sid');
         response.status(204).end();
     });
 });
 
-app.get('/tasks', (request, response) => {
+app.get('/tasks', checkAuth, (request, response) => {
     const task_id = request.query.id;
     if (task_id) {
         const task = taskData.tasks.find((task) => String(task.id) === task_id);
@@ -61,7 +70,7 @@ app.get('/tasks', (request, response) => {
     }
 });
 
-app.post('/tasks', (request, response) => {
+app.post('/tasks', checkAuth, (request, response) => {
     const newTask = request.body;
     const maxId = Math.max(...taskData.tasks.map(task => task.id));
     newTask.id = maxId + 1;
@@ -69,7 +78,7 @@ app.post('/tasks', (request, response) => {
     response.status(201).send(`New Task created: ${JSON.stringify(newTask)}`);
 });
 
-app.put('/tasks/:id', (request, response) => {
+app.put('/tasks/:id', checkAuth, (request, response) => {
     const task_id = request.params.id;
     const updatedTask = request.body;
     const taskIndex = taskData.tasks.findIndex(task => String(task.id) === task_id);
@@ -81,7 +90,7 @@ app.put('/tasks/:id', (request, response) => {
     }
 });
 
-app.delete('/tasks/:id', (request, response) => {
+app.delete('/tasks/:id', checkAuth, (request, response) => {
     const task_id = parseInt(request.params.id);
     const taskIndex = taskData.tasks.findIndex((task) => task.id === task_id);
     if (taskIndex !== -1) {
